@@ -1,4 +1,3 @@
 # advent-of-code
 
-Each year is stored as a branch.
-
+This year i decided to learn Rust.
