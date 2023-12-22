@@ -30,20 +30,14 @@ fn solve(input: &str) -> u32 {
                 .collect();
 
             let winning_numbers: HashSet<u32> = list_numbers[0].clone().into_iter().collect();
+            let player_numbers: HashSet<u32> = list_numbers[1].clone().into_iter().collect();
 
-            let winning_number_count = list_numbers[1]
-                .iter()
-                .filter(|num| winning_numbers.contains(num))
-                .count();
+            let winning_number_count = winning_numbers.intersection(&player_numbers).count();
 
             match winning_number_count {
                 0 => 0,
                 _ => {
-                    let mut score = 1;
-                    for _ in 1..winning_number_count {
-                        score *= 2;
-                    }
-                    score
+                    2u32.pow((winning_number_count - 1).try_into().unwrap())
                 }
             }
         })
