@@ -1,7 +1,7 @@
 use std::fs;
 
 fn main() {
-    let contents = fs::read_to_string("src/bin/3_1/input.txt")
+    let contents = fs::read_to_string("src/bin/3_2/input.txt")
         .expect("Should have been able to read the file");
 
     let solution = solve(&contents);
