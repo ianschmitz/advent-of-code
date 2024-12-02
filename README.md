@@ -1,4 +1,8 @@
-# advent-of-code
+# AdventOfCode 2024 - Elixir
 
-Each year is stored as a branch.
+## Running the solution
 
+```sh
+$ iex -S mix
+iex> AdventOfCode.Day01.solve
+```
