@@ -37,3 +37,5 @@ defmodule AdventOfCode.Day01 do
     {[left_num | left_list], [right_num | right_list]}
   end
 end
+
+IO.inspect(AdventOfCode.Day01.solve)

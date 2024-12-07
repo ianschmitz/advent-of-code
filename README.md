@@ -3,6 +3,6 @@
 ## Running the solution
 
 ```sh
-$ iex -S mix
-iex> AdventOfCode.Day01.solve
+$ elixir solutions/day_01.exs
+{part_1_answer, part_2_answer}
 ```
