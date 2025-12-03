@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -64,14 +63,20 @@ func solve(filePath string) (int, int) {
 
 		newPosition := dial + num
 
-		numTimesPastZero := int(math.Abs(float64(newPosition / dialSize)))
-		part2 += numTimesPastZero
+		// Using `max()` instead of converting to/from float for `math.Abs`
+		part2 += max(newPosition/dialSize, -(newPosition / dialSize))
 		// Note: If dial was at 0, and we just moved 1 to the left, we wouldn't count that as having hit 0
-		if numTimesPastZero <= 0 && dial != 0 {
+		if newPosition <= 0 && dial != 0 {
 			part2++
 		}
 
+		// `newPosition` might have passed over `0` one or more times.
+		// By calculating the remainder we don't care how many times it passed 0 but
+		// just the final position it landed on.
 		dial = newPosition % dialSize
+		if dial < 0 {
+			dial = dialSize + dial
+		}
 
 		if dial == 0 {
 			part1++
