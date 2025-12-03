@@ -1,3 +1,3 @@
-module github.com/ianschmitz/advent-of-code
+module aoc
 
 go 1.25.4

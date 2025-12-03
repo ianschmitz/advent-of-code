@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
-	"runtime"
 	"strconv"
+
+	"aoc/internal/utils"
 )
 
 const (
@@ -22,7 +20,7 @@ func main() {
 }
 
 func runTest() {
-	part1, part2 := solve("./input_test.txt")
+	part1, part2 := solve("day_01_test.txt")
 	if part1 != part1Expected {
 		log.Fatalf("Part 1 - Expected: %d, receieved: %d", part1Expected, part1)
 	}
@@ -32,23 +30,18 @@ func runTest() {
 }
 
 func run() {
-	part1, part2 := solve("./input.txt")
+	part1, part2 := solve("day_01.txt")
 	fmt.Println("Part 1 - Answer is:", part1)
 	fmt.Println("Part 2 - Answer is:", part2)
 }
 
-func solve(filePath string) (int, int) {
-	file, err := os.Open(getAbsFilePath(filePath))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
+func solve(fileName string) (int, int) {
+	scanner := utils.GetInputFileLineScanner(fileName)
 
 	dial := 50
 	part1 := 0
 	part2 := 0
 
-	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
 		direction := line[0:1]
@@ -84,15 +77,4 @@ func solve(filePath string) (int, int) {
 	}
 
 	return part1, part2
-}
-
-func getAbsFilePath(path string) string {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		log.Fatal("Error getting caller information")
-	}
-
-	currentDir := filepath.Dir(filename)
-
-	return filepath.Join(currentDir, path)
 }
