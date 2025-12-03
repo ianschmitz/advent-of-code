@@ -11,7 +11,7 @@ import (
 
 const (
 	part1Expected = 1227775554
-	part2Expected = 0
+	part2Expected = 4174379265
 )
 
 func main() {
@@ -20,7 +20,8 @@ func main() {
 }
 
 func runTest() {
-	part1, part2 := solve("day_02_test.txt")
+	part1 := solvePart1("day_02_test.txt")
+	part2 := solvePart2("day_02_test.txt")
 	if part1 != part1Expected {
 		log.Fatalf("Part 1 - Expected: %d, receieved: %d", part1Expected, part1)
 	}
@@ -30,18 +31,19 @@ func runTest() {
 }
 
 func run() {
-	part1, part2 := solve("day_02.txt")
+	part1 := solvePart1("day_02.txt")
+	part2 := solvePart2("day_02.txt")
 	fmt.Println("Part 1 - Answer is:", part1)
 	fmt.Println("Part 2 - Answer is:", part2)
 }
 
-func solve(fileName string) (int, int) {
+func solvePart1(fileName string) int {
 	file := string(utils.ReadInputFile(fileName))
 	file = strings.TrimSuffix(file, "\n")
 
 	idRanges := strings.Split(string(file), ",")
 
-	part1InvalidIds := []int{}
+	invalidIds := []int{}
 
 	for _, idRange := range idRanges {
 		splitIds := strings.Split(idRange, "-")
@@ -49,20 +51,44 @@ func solve(fileName string) (int, int) {
 
 		for id := start; id <= end; id++ {
 			if !isValidPart1Id(id) {
-				part1InvalidIds = append(part1InvalidIds, id)
+				invalidIds = append(invalidIds, id)
 			}
 		}
 	}
 
-	part1 := 0
-
-	for _, id := range part1InvalidIds {
-		part1 += id
+	answer := 0
+	for _, id := range invalidIds {
+		answer += id
 	}
 
-	part2 := 0
+	return answer
+}
 
-	return part1, part2
+func solvePart2(fileName string) int {
+	file := string(utils.ReadInputFile(fileName))
+	file = strings.TrimSuffix(file, "\n")
+
+	idRanges := strings.Split(string(file), ",")
+
+	invalidIds := []int{}
+
+	for _, idRange := range idRanges {
+		splitIds := strings.Split(idRange, "-")
+		start, end := stringToInt(splitIds[0]), stringToInt(splitIds[1])
+
+		for id := start; id <= end; id++ {
+			if !isValidPart2Id(id) {
+				invalidIds = append(invalidIds, id)
+			}
+		}
+	}
+
+	answer := 0
+	for _, id := range invalidIds {
+		answer += id
+	}
+
+	return answer
 }
 
 func isValidPart1Id(id int) bool {
@@ -78,6 +104,44 @@ func isValidPart1Id(id int) bool {
 	secondHalf := strId[mid:]
 
 	return firstHalf != secondHalf
+}
+
+func isValidPart2Id(id int) bool {
+	strId := strconv.Itoa(id)
+
+	for i := 0; i < len(strId)/2; i++ {
+		slices := splitIntoNCharSlices(strId, i+1)
+
+		if len(slices) < 2 {
+			continue
+		}
+		allEqual := allItemsInSliceEqual(slices)
+		if allEqual {
+			return false
+		}
+	}
+
+	return true
+}
+
+func allItemsInSliceEqual(slice []string) bool {
+	for _, v := range slice {
+		if v != slice[0] {
+			return false
+		}
+	}
+	return true
+}
+
+func splitIntoNCharSlices(s string, sliceSize int) []string {
+	var result []string
+	for i := 0; i < len(s); i += sliceSize {
+		// Handle the case where the last chunk might be less than 2 characters
+		end := min(i+sliceSize, len(s))
+
+		result = append(result, string(s[i:end]))
+	}
+	return result
 }
 
 func stringToInt(stringNum string) int {
