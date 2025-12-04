@@ -47,7 +47,7 @@ func solvePart1(fileName string) int {
 
 	for _, idRange := range idRanges {
 		splitIds := strings.Split(idRange, "-")
-		start, end := stringToInt(splitIds[0]), stringToInt(splitIds[1])
+		start, end := utils.StringToInt(splitIds[0]), utils.StringToInt(splitIds[1])
 
 		for id := start; id <= end; id++ {
 			if !isValidPart1Id(id) {
@@ -74,7 +74,7 @@ func solvePart2(fileName string) int {
 
 	for _, idRange := range idRanges {
 		splitIds := strings.Split(idRange, "-")
-		start, end := stringToInt(splitIds[0]), stringToInt(splitIds[1])
+		start, end := utils.StringToInt(splitIds[0]), utils.StringToInt(splitIds[1])
 
 		for id := start; id <= end; id++ {
 			if !isValidPart2Id(id) {
@@ -142,12 +142,4 @@ func splitIntoNCharSlices(s string, sliceSize int) []string {
 		result = append(result, string(s[i:end]))
 	}
 	return result
-}
-
-func stringToInt(stringNum string) int {
-	num, err := strconv.Atoi(stringNum)
-	if err != nil {
-		log.Fatal("Error converting string to int:", err)
-	}
-	return num
 }
