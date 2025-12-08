@@ -13,7 +13,7 @@ import (
 
 const (
 	part1Expected = 40
-	part2Expected = 0
+	part2Expected = 25272
 )
 
 func main() {
@@ -61,60 +61,95 @@ func solvePart1(fileName string, pairsToConnect int) int {
 	}
 
 	pointPairs := getAllCombosWithDistance(points)
-	slices.SortFunc(pointPairs, func(a distancePair, b distancePair) int {
+	slices.SortFunc(pointPairs, func(a, b distancePair) int {
 		return int(a.Distance - b.Distance)
 	})
+	pointPairs = pointPairs[:pairsToConnect]
 
 	circuits := [][]point3D{}
-
-	connectedCount := 0
-	for _, pointPair := range pointPairs {
-		if connectedCount >= pairsToConnect {
-			break
-		}
-
-		foundCircuitIdx := slices.IndexFunc(circuits, func(circuit []point3D) bool {
-			return slices.Contains(circuit, pointPair.P1) || slices.Contains(circuit, pointPair.P2)
-		})
-
-		if foundCircuitIdx > -1 {
-			containsP1 := slices.Contains(circuits[foundCircuitIdx], pointPair.P1)
-			containsP2 := slices.Contains(circuits[foundCircuitIdx], pointPair.P2)
-
-			if containsP1 && !containsP2 {
-				circuits[foundCircuitIdx] = append(circuits[foundCircuitIdx], pointPair.P2)
-				connectedCount++
-			} else if !containsP1 {
-				circuits[foundCircuitIdx] = append(circuits[foundCircuitIdx], pointPair.P1)
-				connectedCount++
-			}
-		} else {
-			circuits = append(circuits, []point3D{pointPair.P1, pointPair.P2})
-			connectedCount++
-		}
+	for _, point := range points {
+		circuits = append(circuits, []point3D{point})
 	}
 
+	for _, pointPair := range pointPairs {
+		p1Idx := slices.IndexFunc(circuits, func(circuit []point3D) bool {
+			return slices.ContainsFunc(circuit, func(point point3D) bool {
+				return point == pointPair.P1
+			})
+		})
+		p2Idx := slices.IndexFunc(circuits, func(circuit []point3D) bool {
+			return slices.ContainsFunc(circuit, func(point point3D) bool {
+				return point == pointPair.P2
+			})
+		})
+
+		circuits = mergeCircuits(circuits, p1Idx, p2Idx)
+	}
+
+	// Sort based on largest circuits
 	slices.SortFunc(circuits, func(a, b []point3D) int {
 		return len(b) - len(a)
 	})
-
-	for _, val := range circuits {
-		fmt.Println(val)
-	}
 
 	return len(circuits[0]) * len(circuits[1]) * len(circuits[2])
 }
 
 func solvePart2(fileName string) int {
+	scanner := utils.GetInputFileLineScanner(fileName)
+
+	points := []point3D{}
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		strCoords := strings.Split(line, ",")
+		coords := point3D{
+			X: utils.StringToInt(strCoords[0]),
+			Y: utils.StringToInt(strCoords[1]),
+			Z: utils.StringToInt(strCoords[2]),
+		}
+
+		points = append(points, coords)
+	}
+
+	pointPairs := getAllCombosWithDistance(points)
+	slices.SortFunc(pointPairs, func(a, b distancePair) int {
+		return int(a.Distance - b.Distance)
+	})
+
+	circuits := [][]point3D{}
+	for _, point := range points {
+		circuits = append(circuits, []point3D{point})
+	}
+
+	for _, pointPair := range pointPairs {
+		p1Idx := slices.IndexFunc(circuits, func(circuit []point3D) bool {
+			return slices.ContainsFunc(circuit, func(point point3D) bool {
+				return point == pointPair.P1
+			})
+		})
+		p2Idx := slices.IndexFunc(circuits, func(circuit []point3D) bool {
+			return slices.ContainsFunc(circuit, func(point point3D) bool {
+				return point == pointPair.P2
+			})
+		})
+
+		circuits = mergeCircuits(circuits, p1Idx, p2Idx)
+
+		if len(circuits) == 1 {
+			return pointPair.P1.X * pointPair.P2.X
+		}
+	}
+
+	log.Fatal("Didn't form one circuit")
 	return 0
 }
 
 func calculateDistance(p1, p2 point3D) float64 {
 	// Use the distance formula: d = sqrt((x2-x1)² + (y2-y1)² + (z2-z1)²)
-	dx := float64(p2.X - p1.X)
-	dy := float64(p2.Y - p1.Y)
-	dz := float64(p2.Z - p1.Z)
-	return math.Sqrt(dx*dx + dy*dy + dz*dz)
+	dx := p2.X - p1.X
+	dy := p2.Y - p1.Y
+	dz := p2.Z - p1.Z
+	return math.Sqrt(float64(dx*dx + dy*dy + dz*dz))
 }
 
 type point3D struct {
@@ -131,14 +166,11 @@ type distancePair struct {
 func getAllCombosWithDistance(slice []point3D) []distancePair {
 	var result []distancePair
 
-	// Outer loop iterates from the first element to the second-to-last
 	for i := range slice {
-		// Inner loop iterates from the element *after* the outer loop's current element to the end
+		// This logic ensures:
+		// 1. We don't pair an element with itself
+		// 2. We don't create reverse duplicates
 		for j := i + 1; j < len(slice); j++ {
-			// This logic ensures:
-			// 1. We don't pair an element with itself (j starts from i + 1)
-			// 2. We don't create reverse duplicates (e.g., if we have [1, 2], we won't get [2, 1] because for i=2, j starts from 3)
-
 			pair := distancePair{
 				P1:       slice[i],
 				P2:       slice[j],
@@ -150,4 +182,13 @@ func getAllCombosWithDistance(slice []point3D) []distancePair {
 	}
 
 	return result
+}
+
+func mergeCircuits(circuits [][]point3D, idx1 int, idx2 int) [][]point3D {
+	if idx1 == idx2 {
+		return circuits
+	}
+
+	circuits[idx1] = append(circuits[idx1], circuits[idx2]...)
+	return append(circuits[:idx2], circuits[idx2+1:]...)
 }
