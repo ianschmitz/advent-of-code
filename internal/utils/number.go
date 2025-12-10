@@ -12,3 +12,25 @@ func StringToInt(stringNum string) int {
 	}
 	return num
 }
+
+func StringToFloat(stringNum string) float64 {
+	num, err := strconv.ParseFloat(stringNum, 64)
+	if err != nil {
+		log.Fatal("Error converting string to float:", err)
+	}
+	return num
+}
+
+func MinInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func MaxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
